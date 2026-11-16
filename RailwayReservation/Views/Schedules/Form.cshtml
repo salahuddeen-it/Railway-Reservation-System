@@ -1,0 +1,67 @@
+﻿@model RailwayReservation.Models.TrainSchedule
+@{
+    bool isEdit = Model.ScheduleId > 0;
+    ViewBag.Title = isEdit ? "Edit Stop" : "Add Stop";
+    var train = ViewBag.Train as RailwayReservation.Models.Train;
+}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">@ViewBag.Title</h5>
+                @if (train != null)
+                {<small class="text-muted">@train.DisplayText</small>}
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm(isEdit ? "Edit" : "Create", "Schedules", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2 small" })
+                    @Html.HiddenFor(m => m.ScheduleId)
+                    @Html.HiddenFor(m => m.TrainNo)
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            @Html.LabelFor(m => m.StopNo, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.StopNo, new { @class = "form-control", type = "number", min = "1" })
+                            @Html.ValidationMessageFor(m => m.StopNo, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-md-8">
+                            @Html.LabelFor(m => m.StationId, new { @class = "form-label" })
+                            @Html.DropDownListFor(m => m.StationId, (SelectList)ViewBag.StationList, "-- Select Station --", new { @class = "form-select" })
+                            @Html.ValidationMessageFor(m => m.StationId, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-md-6">
+                            @Html.LabelFor(m => m.ArrivalTime, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.ArrivalTime, "{0:hh\\:mm}", new { @class = "form-control", type = "time" })
+                            <div class="form-text">Leave empty for the first (source) station.</div>
+                            @Html.ValidationMessageFor(m => m.ArrivalTime, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-md-6">
+                            @Html.LabelFor(m => m.DepartureTime, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.DepartureTime, "{0:hh\\:mm}", new { @class = "form-control", type = "time" })
+                            <div class="form-text">Leave empty for the last (destination) station.</div>
+                            @Html.ValidationMessageFor(m => m.DepartureTime, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-md-6">
+                            @Html.LabelFor(m => m.DistanceFromSource, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.DistanceFromSource, new { @class = "form-control", type = "number", min = "0" })
+                            @Html.ValidationMessageFor(m => m.DistanceFromSource, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-md-6">
+                            @Html.LabelFor(m => m.DayOffset, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.DayOffset, new { @class = "form-control", type = "number", min = "0", max = "7" })
+                            <div class="form-text">0 = same day as start, 1 = next day ...</div>
+                            @Html.ValidationMessageFor(m => m.DayOffset, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> Save</button>
+                        <a href="@Url.Action("Index", new { trainNo = Model.TrainNo })" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

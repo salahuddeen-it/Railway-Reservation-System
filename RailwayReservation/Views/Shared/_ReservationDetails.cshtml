@@ -1,0 +1,100 @@
+﻿@using RailwayReservation.Helpers
+@using RailwayReservation.Models
+@model RailwayReservation.ViewModels.ReservationDetailsViewModel
+@{
+    var r = Model.Reservation;
+    bool cancelled = r.Status == ReservationStatus.Cancelled;
+}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-train-front"></i> RailEase E-Ticket</span>
+        <span>PNR: <strong>@r.Pnr</strong></span>
+    </div>
+    <div class="card-body">
+        <div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
+            <div>
+                <h5 class="mb-0">@r.Train.TrainNo – @r.Train.TrainName</h5>
+                <div class="text-muted small">@r.TravelClass.GetDisplayName() · @r.Train.TrainType.GetDisplayName()</div>
+            </div>
+            <div>
+                @if (cancelled)
+                {<span class="badge bg-danger fs-6">CANCELLED</span> }
+                else
+                { <span class="badge bg-success fs-6">BOOKED</span>}
+            </div>
+        </div>
+
+        @* Route *@
+        <div class="row text-center align-items-center border rounded py-3 mb-3 mx-0">
+            <div class="col-5">
+                <div class="fs-4 fw-semibold">@r.FromStation.StationCode</div>
+                <div class="small text-muted">@r.FromStation.StationName</div>
+                <div class="small">Dep: @(Model.DepartureDateTime.HasValue ? Model.DepartureDateTime.Value.ToString("dd MMM yyyy, HH:mm") : "-")</div>
+            </div>
+            <div class="col-2">
+                <i class="bi bi-arrow-right fs-3"></i>
+                <div class="small text-muted">@r.DistanceKm km</div>
+            </div>
+            <div class="col-5">
+                <div class="fs-4 fw-semibold">@r.ToStation.StationCode</div>
+                <div class="small text-muted">@r.ToStation.StationName</div>
+                <div class="small">Arr: @(Model.ArrivalDateTime.HasValue ? Model.ArrivalDateTime.Value.ToString("dd MMM yyyy, HH:mm") : "-")</div>
+            </div>
+        </div>
+
+        <div class="row small g-2 mb-3">
+            <div class="col-6 col-md-3"><span class="text-muted">Journey (train start) date</span><br />@r.JourneyDate.ToString("dd MMM yyyy (ddd)")</div>
+            <div class="col-6 col-md-3"><span class="text-muted">Booked on</span><br />@r.BookedOn.ToString("dd MMM yyyy HH:mm")</div>
+            <div class="col-6 col-md-3"><span class="text-muted">Booked by</span><br />@(r.BookedBy != null ? r.BookedBy.FullName : "-")</div>
+            <div class="col-6 col-md-3"><span class="text-muted">Contact</span><br />@(string.IsNullOrEmpty(r.ContactMobile) ? "-" : r.ContactMobile)</div>
+        </div>
+
+        @* Passengers with current status *@
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead class="table-light">
+                    <tr><th>#</th><th>Name</th><th>Age</th><th>Gender</th><th>Status</th><th>Coach / Seat</th></tr>
+                </thead>
+                <tbody>
+                    @{ int n = 1; }
+                    @foreach (var p in r.Passengers.OrderBy(x => x.PassengerId))
+                    {
+                        <tr>
+                            <td>@(n++)</td>
+                            <td>@p.Name</td>
+                            <td>@p.Age</td>
+                            <td>@p.Gender</td>
+                            <td>
+                                @if (p.Status == PassengerStatus.Confirmed)
+                                {<span class="badge bg-success">CNF</span> }
+                                else if (p.Status == PassengerStatus.Waitlisted)
+                                { <span class="badge bg-warning text-dark">WL @p.WaitlistNo</span> }
+                            else
+                            { <span class="badge bg-secondary">CAN</span>}
+                            </td>
+                            <td>@(string.IsNullOrEmpty(p.CoachNo) ? "-" : p.CoachNo + " / " + p.SeatNo)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @* Fare break-up *@
+        <div class="row justify-content-end">
+            <div class="col-md-6">
+                <table class="table table-sm mb-0">
+                    <tr><td>Base fare</td><td class="text-end">Rs. @r.BaseFare.ToString("N2")</td></tr>
+                    <tr><td>Reservation charge</td><td class="text-end">Rs. @r.ReservationCharge.ToString("N2")</td></tr>
+                    <tr><td>Super fast charge</td><td class="text-end">Rs. @r.SuperFastCharge.ToString("N2")</td></tr>
+                    <tr class="fw-semibold"><td>Total paid</td><td class="text-end">Rs. @r.TotalAmount.ToString("N2")</td></tr>
+                    @if (cancelled || r.CancellationFee > 0 || r.RefundAmount > 0)
+                    {
+                        <tr class="text-danger"><td>Cancellation fee</td><td class="text-end">Rs. @r.CancellationFee.ToString("N2")</td></tr>
+                        <tr class="text-success fw-semibold"><td>Refund</td><td class="text-end">Rs. @r.RefundAmount.ToString("N2")</td></tr>
+                        <tr><td>Cancelled on</td><td class="text-end">@(r.CancelledOn.HasValue ? r.CancelledOn.Value.ToString("dd MMM yyyy HH:mm") : "-")</td></tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

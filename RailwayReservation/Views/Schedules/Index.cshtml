@@ -1,0 +1,63 @@
+﻿@model IEnumerable<RailwayReservation.Models.TrainSchedule>
+@{
+    ViewBag.Title = "Train Schedule";
+    var train = ViewBag.Train as RailwayReservation.Models.Train;
+}
+<h4 class="mb-3"><i class="bi bi-signpost-split"></i> Train Schedule</h4>
+
+@* Select a train – page reloads on change *@
+<form method="get" class="row g-2 mb-3">
+    <div class="col-sm-8 col-md-5">
+        @Html.DropDownList("trainNo", (SelectList)ViewBag.TrainList, "-- Select Train --", new { @class = "form-select", onchange = "this.form.submit()" })
+    </div>
+    @if (train != null)
+    {
+        <div class="col-auto">
+            <a href="@Url.Action("Create", new { trainNo = train.TrainNo })" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Stop</a>
+        </div>
+    }
+</form>
+
+@if (train != null)
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white fw-semibold">@train.DisplayText</div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th>Stop</th><th>Code</th><th>Station</th><th>Arrival</th><th>Departure</th><th>Day</th><th>Distance (km)</th><th class="text-end">Actions</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model)
+                    {
+                        <tr>
+                            <td>@s.StopNo</td>
+                            <td><span class="badge bg-primary">@s.Station.StationCode</span></td>
+                            <td>@s.Station.StationName</td>
+                            <td>@(s.ArrivalTime.HasValue ? s.ArrivalTime.Value.ToString("hh\\:mm") : "Source")</td>
+                            <td>@(s.DepartureTime.HasValue ? s.DepartureTime.Value.ToString("hh\\:mm") : "Destination")</td>
+                            <td>Day @(s.DayOffset + 1)</td>
+                            <td>@s.DistanceFromSource</td>
+                            <td class="text-end text-nowrap">
+                                <a href="@Url.Action("Edit", new { id = s.ScheduleId })" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                @using (Html.BeginForm("Delete", "Schedules", new { id = s.ScheduleId }, FormMethod.Post, new { @class = "d-inline", onsubmit = "return confirm('Delete this stop?');" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="8" class="text-center text-muted py-4">No stops yet. Click "Add Stop".</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-light border">Select a train to view or edit its schedule.</div>
+}

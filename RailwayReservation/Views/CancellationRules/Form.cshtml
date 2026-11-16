@@ -1,0 +1,45 @@
+﻿@model RailwayReservation.Models.CancellationRule
+@{
+    bool isEdit = Model.CancellationRuleId > 0;
+    ViewBag.Title = isEdit ? "Edit Cancellation Rule" : "Add Cancellation Rule";
+}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><h5 class="mb-0">@ViewBag.Title</h5></div>
+            <div class="card-body">
+                @using (Html.BeginForm(isEdit ? "Edit" : "Create", "CancellationRules", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2 small" })
+                    @Html.HiddenFor(m => m.CancellationRuleId)
+
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.TravelClass, new { @class = "form-label" })
+                        @Html.EnumDropDownListFor(m => m.TravelClass, new { @class = "form-select" })
+                    </div>
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.MinHoursBeforeDeparture, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.MinHoursBeforeDeparture, new { @class = "form-control", type = "number", min = "0" })
+                        @Html.ValidationMessageFor(m => m.MinHoursBeforeDeparture, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            @Html.LabelFor(m => m.DeductionPercent, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.DeductionPercent, new { @class = "form-control", type = "number", step = "0.01", min = "0", max = "100" })
+                            @Html.ValidationMessageFor(m => m.DeductionPercent, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-6">
+                            @Html.LabelFor(m => m.MinimumCharge, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.MinimumCharge, new { @class = "form-control", type = "number", step = "0.01", min = "0" })
+                            @Html.ValidationMessageFor(m => m.MinimumCharge, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> Save</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancel</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

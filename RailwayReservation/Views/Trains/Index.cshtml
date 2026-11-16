@@ -1,0 +1,73 @@
+﻿@using RailwayReservation.Helpers
+@model IEnumerable<RailwayReservation.Models.Train>
+@{
+    ViewBag.Title = "Train Master";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-train-front"></i> Train Master</h4>
+    <a href="@Url.Action("Create")" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Train</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Train No</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Up/Down</th>
+                    <th>Route</th>
+                    <th class="text-center">1A</th>
+                    <th class="text-center">2A</th>
+                    <th class="text-center">3A</th>
+                    <th class="text-center">FC</th>
+                    <th class="text-center">SL</th>
+                    <th class="text-center">GEN</th>
+                    <th>Runs On</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@t.TrainNo</td>
+                        <td>@t.TrainName</td>
+                        <td>@t.TrainType.GetDisplayName()</td>
+                        <td>@t.Direction</td>
+                        <td>@t.RouteId</td>
+                        <td class="text-center">@t.AC1Coaches</td>
+                        <td class="text-center">@t.AC2Coaches</td>
+                        <td class="text-center">@t.AC3Coaches</td>
+                        <td class="text-center">@t.FCCoaches</td>
+                        <td class="text-center">@t.SLCoaches</td>
+                        <td class="text-center">@t.GeneralCoaches</td>
+                        <td class="small">@(t.RunDay != null ? t.RunDay.DaysText : "Not set")</td>
+                        <td>
+                            @if (t.IsActive)
+                            {<span class="badge bg-success">Active</span> }
+                            else
+                            { <span class="badge bg-secondary">Inactive</span>}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a href="@Url.Action("Index", "Schedules", new { trainNo = t.TrainNo })" class="btn btn-sm btn-outline-secondary" title="Schedule"><i class="bi bi-signpost-split"></i></a>
+                            <a href="@Url.Action("Edit", "RunDays", new { id = t.TrainNo })" class="btn btn-sm btn-outline-secondary" title="Running days"><i class="bi bi-calendar-week"></i></a>
+                            <a href="@Url.Action("Edit", new { id = t.TrainNo })" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                            @using (Html.BeginForm("Delete", "Trains", new { id = t.TrainNo }, FormMethod.Post, new { @class = "d-inline", onsubmit = "return confirm('Delete this train with its schedule?');" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="14" class="text-center text-muted py-4">No trains found.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

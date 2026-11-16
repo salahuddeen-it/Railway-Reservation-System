@@ -1,0 +1,41 @@
+﻿@model RailwayReservation.Models.ReservationFee
+@{
+    bool isEdit = Model.FeeId > 0;
+    ViewBag.Title = isEdit ? "Edit Fees" : "Add Fees";
+}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><h5 class="mb-0">@ViewBag.Title</h5></div>
+            <div class="card-body">
+                @using (Html.BeginForm(isEdit ? "Edit" : "Create", "ReservationFees", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2 small" })
+                    @Html.HiddenFor(m => m.FeeId)
+
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.TravelClass, new { @class = "form-label" })
+                        @Html.EnumDropDownListFor(m => m.TravelClass, new { @class = "form-select" })
+                        @Html.ValidationMessageFor(m => m.TravelClass, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            @Html.LabelFor(m => m.ReservationCharge, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.ReservationCharge, new { @class = "form-control", type = "number", step = "0.01", min = "0" })
+                            @Html.ValidationMessageFor(m => m.ReservationCharge, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-6">
+                            @Html.LabelFor(m => m.SuperFastCharge, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.SuperFastCharge, new { @class = "form-control", type = "number", step = "0.01", min = "0" })
+                            @Html.ValidationMessageFor(m => m.SuperFastCharge, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> Save</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancel</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

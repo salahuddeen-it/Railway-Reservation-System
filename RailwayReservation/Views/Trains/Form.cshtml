@@ -1,0 +1,96 @@
+﻿@model RailwayReservation.Models.Train
+@{
+    bool isEdit = ViewBag.IsEdit != null && (bool)ViewBag.IsEdit;
+    ViewBag.Title = isEdit ? "Edit Train" : "Add Train";
+}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><h5 class="mb-0">@ViewBag.Title</h5></div>
+            <div class="card-body">
+                @using (Html.BeginForm(isEdit ? "Edit" : "Create", "Trains", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2 small" })
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            @Html.LabelFor(m => m.TrainNo, new { @class = "form-label" })
+                            @if (isEdit)
+                            {
+                                @Html.TextBoxFor(m => m.TrainNo, new { @class = "form-control", @readonly = "readonly" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(m => m.TrainNo, new { @class = "form-control", type = "number" })
+                            }
+                            @Html.ValidationMessageFor(m => m.TrainNo, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-md-8">
+                            @Html.LabelFor(m => m.TrainName, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.TrainName, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.TrainName, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-md-4">
+                            @Html.LabelFor(m => m.TrainType, new { @class = "form-label" })
+                            @Html.EnumDropDownListFor(m => m.TrainType, new { @class = "form-select" })
+                        </div>
+                        <div class="col-md-4">
+                            @Html.LabelFor(m => m.Direction, new { @class = "form-label" })
+                            @Html.EnumDropDownListFor(m => m.Direction, new { @class = "form-select" })
+                        </div>
+                        <div class="col-md-4">
+                            @Html.LabelFor(m => m.RouteId, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.RouteId, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.RouteId, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <h6 class="mt-4 mb-2 text-muted">Number of Coaches</h6>
+                    <div class="row g-3">
+                        <div class="col-6 col-md-4">
+                            @Html.LabelFor(m => m.AC1Coaches, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.AC1Coaches, new { @class = "form-control", type = "number", min = "0" })
+                            @Html.ValidationMessageFor(m => m.AC1Coaches, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-6 col-md-4">
+                            @Html.LabelFor(m => m.AC2Coaches, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.AC2Coaches, new { @class = "form-control", type = "number", min = "0" })
+                            @Html.ValidationMessageFor(m => m.AC2Coaches, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-6 col-md-4">
+                            @Html.LabelFor(m => m.AC3Coaches, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.AC3Coaches, new { @class = "form-control", type = "number", min = "0" })
+                            @Html.ValidationMessageFor(m => m.AC3Coaches, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-6 col-md-4">
+                            @Html.LabelFor(m => m.FCCoaches, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.FCCoaches, new { @class = "form-control", type = "number", min = "0" })
+                            @Html.ValidationMessageFor(m => m.FCCoaches, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-6 col-md-4">
+                            @Html.LabelFor(m => m.SLCoaches, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.SLCoaches, new { @class = "form-control", type = "number", min = "0" })
+                            @Html.ValidationMessageFor(m => m.SLCoaches, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-6 col-md-4">
+                            @Html.LabelFor(m => m.GeneralCoaches, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.GeneralCoaches, new { @class = "form-control", type = "number", min = "0" })
+                            @Html.ValidationMessageFor(m => m.GeneralCoaches, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <div class="form-check mt-3">
+                        @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input" })
+                        @Html.LabelFor(m => m.IsActive, new { @class = "form-check-label" })
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> Save</button>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

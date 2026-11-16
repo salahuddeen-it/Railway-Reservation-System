@@ -1,0 +1,56 @@
+﻿@model RailwayReservation.ViewModels.UserFormViewModel
+@{
+    bool isEdit = Model.UserId > 0;
+    ViewBag.Title = isEdit ? "Edit User" : "Add User";
+}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><h5 class="mb-0">@ViewBag.Title</h5></div>
+            <div class="card-body">
+                @using (Html.BeginForm(isEdit ? "Edit" : "Create", "Users", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2 small" })
+                    @Html.HiddenFor(m => m.UserId)
+
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.UserName, new { @class = "form-label" })
+                        @if (isEdit)
+                        {
+                            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", @readonly = "readonly" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", autocomplete = "off" })
+                        }
+                        @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.FullName, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.FullName, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.UserType, new { @class = "form-label" })
+                        @Html.EnumDropDownListFor(m => m.UserType, new { @class = "form-select" })
+                    </div>
+                    <div class="form-check mb-3">
+                        @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input" })
+                        @Html.LabelFor(m => m.IsActive, new { @class = "form-check-label" })
+                    </div>
+
+                    if (!isEdit)
+                    {
+                        <div class="alert alert-light border small">
+                            <i class="bi bi-info-circle"></i> The system will generate a default alphanumeric password and show it after saving.
+                        </div>
+                    }
+
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> Save</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancel</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

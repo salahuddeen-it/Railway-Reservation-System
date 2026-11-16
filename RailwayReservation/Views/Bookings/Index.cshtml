@@ -1,0 +1,94 @@
+﻿@using RailwayReservation.Models
+@model IEnumerable<RailwayReservation.Models.Passenger>
+@{
+    ViewBag.Title = "All Bookings";
+    int total = Model.Count();
+    int cnf = Model.Count(p => p.Status == PassengerStatus.Confirmed);
+    int wl = Model.Count(p => p.Status == PassengerStatus.Waitlisted);
+    int can = Model.Count(p => p.Status == PassengerStatus.Cancelled);
+    int pnrs = Model.Select(p => p.ReservationId).Distinct().Count();
+}
+<h4 class="mb-3"><i class="bi bi-journal-text"></i> All Bookings</h4>
+
+@* Filters *@
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        @Html.DropDownList("trainNo", (SelectList)ViewBag.TrainList, "All Trains", new { @class = "form-select" })
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="date" value="@ViewBag.FilterDate" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        @Html.DropDownList("status", (SelectList)ViewBag.StatusList, "All Status", new { @class = "form-select" })
+    </div>
+    <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary" title="Clear"><i class="bi bi-x-lg"></i></a>
+    </div>
+</form>
+
+@* Summary *@
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <span class="badge bg-dark fs-6">PNRs: @pnrs</span>
+    <span class="badge bg-primary fs-6">Passengers: @total</span>
+    <span class="badge bg-success fs-6">Confirmed: @cnf</span>
+    <span class="badge bg-warning text-dark fs-6">Waitlisted: @wl</span>
+    <span class="badge bg-secondary fs-6">Cancelled: @can</span>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover table-sm align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Journey Date</th>
+                    <th>Train</th>
+                    <th>PNR</th>
+                    <th>Passenger</th>
+                    <th>Age/Sex</th>
+                    <th>From → To</th>
+                    <th>Class</th>
+                    <th>Status</th>
+                    <th>Coach/Seat</th>
+                    <th>Booked By</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    var r = p.Reservation;
+                    <tr>
+                        <td>@r.JourneyDate.ToString("dd MMM yyyy")</td>
+                        <td>@r.Train.TrainNo</td>
+                        <td><a href="@Url.Action("Index", "Query", new { pnr = r.Pnr })">@r.Pnr</a></td>
+                        <td>@p.Name</td>
+                        <td>@p.Age / @p.Gender.ToString().Substring(0, 1)</td>
+                        <td>@r.FromStation.StationCode → @r.ToStation.StationCode</td>
+                        <td>@r.TravelClass</td>
+                        <td>
+                            @if (p.Status == PassengerStatus.Confirmed)
+                            {<span class="badge bg-success">CNF</span> }
+                            else if (p.Status == PassengerStatus.Waitlisted)
+                            { <span class="badge bg-warning text-dark">WL @p.WaitlistNo</span> }
+                        else
+                        { <span class="badge bg-secondary">CAN</span>}
+                        </td>
+                        <td>@(string.IsNullOrEmpty(p.CoachNo) ? "-" : p.CoachNo + "/" + p.SeatNo)</td>
+                        <td class="small">@(r.BookedBy != null ? r.BookedBy.UserName : "-")</td>
+                        <td>
+                            @if (p.Status != PassengerStatus.Cancelled)
+                            {
+                                <a href="@Url.Action("Index", "Cancellation", new { pnr = r.Pnr })" class="btn btn-sm btn-outline-danger" title="Cancel"><i class="bi bi-x-circle"></i></a>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (total == 0)
+                {
+                    <tr><td colspan="11" class="text-center text-muted py-4">No bookings found.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

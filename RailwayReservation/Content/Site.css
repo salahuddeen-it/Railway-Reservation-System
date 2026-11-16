@@ -1,0 +1,39 @@
+﻿/* Global look */
+body {
+    background-color: #f4f6fb;
+}
+
+/* Hide empty validation summary (MVC renders an empty div otherwise) */
+.validation-summary-valid {
+    display: none;
+}
+
+/* jQuery validation error styling with Bootstrap 5 */
+.input-validation-error {
+    border-color: #dc3545 !important;
+}
+
+.field-validation-error {
+    color: #dc3545;
+}
+
+/* Dashboard cards */
+.stat-card {
+    border-left: 4px solid #0d6efd !important;
+}
+
+/* Tables */
+.table thead th {
+    white-space: nowrap;
+}
+
+/* Ticket printing: hide navigation / buttons */
+@media print {
+    nav, footer, .no-print, .btn {
+        display: none !important;
+    }
+
+    body {
+        background: #fff;
+    }
+}

@@ -1,0 +1,72 @@
+﻿@using RailwayReservation.Models
+@model IEnumerable<RailwayReservation.Models.CashTransaction>
+@{
+    ViewBag.Title = "Daily Cash Transactions";
+    DateTime d = ViewBag.Date;
+    decimal received = Model.Where(t => t.Type == CashTransactionType.Receipt).Sum(t => t.Amount);
+    decimal refunded = Model.Where(t => t.Type == CashTransactionType.Refund).Sum(t => t.Amount);
+}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h4 class="mb-0"><i class="bi bi-cash-stack"></i> Daily Cash Transactions</h4>
+    <div class="d-flex gap-2">
+        <form method="get" class="d-flex gap-2">
+            <input type="date" name="date" value="@d.ToString("yyyy-MM-dd")" class="form-control" />
+            <button type="submit" class="btn btn-outline-secondary">Show</button>
+        </form>
+        <a href="@Url.Action("Export", new { date = d.ToString("yyyy-MM-dd") })" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Export to Excel</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Money Received</div><div class="fs-4 fw-semibold text-success">Rs. @received.ToString("N2")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Money Refunded</div><div class="fs-4 fw-semibold text-danger">Rs. @refunded.ToString("N2")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Net Collection</div><div class="fs-4 fw-semibold">Rs. @((received - refunded).ToString("N2"))</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light"><tr><th>Time</th><th>PNR</th><th>Type</th><th class="text-end">Amount (Rs.)</th><th>User</th><th>Remarks</th></tr></thead>
+            <tbody>
+                @foreach (var t in Model)
+                {
+                    <tr>
+                        <td>@t.TransactionDate.ToString("HH:mm")</td>
+                        <td><a href="@Url.Action("Index", "Query", new { pnr = t.Pnr })">@t.Pnr</a></td>
+                        <td>
+                            @if (t.Type == CashTransactionType.Receipt)
+                            {<span class="badge bg-success">Receipt</span> }
+                            else
+                            { <span class="badge bg-danger">Refund</span>}
+                        </td>
+                        <td class="text-end">@t.Amount.ToString("N2")</td>
+                        <td>@(t.User != null ? t.User.UserName : "-")</td>
+                        <td>@t.Remarks</td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">No transactions on this date.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

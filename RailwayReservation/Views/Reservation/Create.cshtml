@@ -1,0 +1,109 @@
+﻿@model RailwayReservation.ViewModels.BookingViewModel
+@{
+    ViewBag.Title = "New Reservation";
+}
+<h4 class="mb-3"><i class="bi bi-ticket-perforated"></i> New Reservation</h4>
+
+@using (Html.BeginForm("Create", "Reservation", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2 small" })
+
+    @* Journey details *@
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white fw-semibold">Journey Details</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    @Html.LabelFor(m => m.TrainNo, new { @class = "form-label" })
+                    @Html.DropDownListFor(m => m.TrainNo, (SelectList)ViewBag.TrainList, "-- Select Train --", new { @class = "form-select" })
+                    <div id="runDaysHint" class="form-text">@ViewBag.RunDaysText</div>
+                    @Html.ValidationMessageFor(m => m.TrainNo, "", new { @class = "text-danger small" })
+                </div>
+                <div class="col-md-3">
+                    @Html.LabelFor(m => m.JourneyDate, new { @class = "form-label" })
+                    @Html.TextBoxFor(m => m.JourneyDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", min = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"), max = DateTime.Today.AddDays(90).ToString("yyyy-MM-dd") })
+                    @Html.ValidationMessageFor(m => m.JourneyDate, "", new { @class = "text-danger small" })
+                </div>
+                <div class="col-md-3">
+                    @Html.LabelFor(m => m.TravelClass, new { @class = "form-label" })
+                    @Html.EnumDropDownListFor(m => m.TravelClass, new { @class = "form-select" })
+                </div>
+                <div class="col-md-6">
+                    @Html.LabelFor(m => m.FromStationId, new { @class = "form-label" })
+                    @Html.DropDownListFor(m => m.FromStationId, (SelectList)ViewBag.FromList, "-- Select --", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(m => m.FromStationId, "", new { @class = "text-danger small" })
+                </div>
+                <div class="col-md-6">
+                    @Html.LabelFor(m => m.ToStationId, new { @class = "form-label" })
+                    @Html.DropDownListFor(m => m.ToStationId, (SelectList)ViewBag.ToList, "-- Select --", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(m => m.ToStationId, "", new { @class = "text-danger small" })
+                </div>
+                <div class="col-md-6">
+                    @Html.LabelFor(m => m.ContactMobile, new { @class = "form-label" })
+                    @Html.TextBoxFor(m => m.ContactMobile, new { @class = "form-control", placeholder = "Optional" })
+                    @Html.ValidationMessageFor(m => m.ContactMobile, "", new { @class = "text-danger small" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Passengers – fill only the rows you need (max 6) *@
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white fw-semibold">Passengers <span class="text-muted small fw-normal">(fill only the rows you need, max 6)</span></div>
+        <div class="card-body">
+            @for (int i = 0; i < Model.Passengers.Count; i++)
+            {
+                <div class="row g-2 mb-2 align-items-start">
+                    <div class="col-12 col-md-1 pt-md-2 text-muted">@(i + 1).</div>
+                    <div class="col-12 col-md-6">
+                        @Html.TextBoxFor(m => m.Passengers[i].Name, new { @class = "form-control", placeholder = "Passenger name" })
+                        @Html.ValidationMessageFor(m => m.Passengers[i].Name, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="col-6 col-md-2">
+                        @Html.TextBoxFor(m => m.Passengers[i].Age, new { @class = "form-control", type = "number", min = "1", max = "120", placeholder = "Age" })
+                        @Html.ValidationMessageFor(m => m.Passengers[i].Age, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="col-6 col-md-3">
+                        @Html.EnumDropDownListFor(m => m.Passengers[i].Gender, new { @class = "form-select" })
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-search"></i> Check Availability &amp; Fare</button>
+}
+
+@section scripts {
+    <script>
+        // Load the selected train's stations into From / To dropdowns
+        (function () {
+            var train = document.getElementById('TrainNo');
+            var from = document.getElementById('FromStationId');
+            var to = document.getElementById('ToStationId');
+            var hint = document.getElementById('runDaysHint');
+
+            function fill(select, items) {
+                select.innerHTML = '<option value="">-- Select --</option>';
+                items.forEach(function (item) {
+                    var opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.textContent = item.text;
+                    select.appendChild(opt);
+                });
+            }
+
+            train.addEventListener('change', function () {
+                if (!train.value) { fill(from, []); fill(to, []); hint.textContent = ''; return; }
+                fetch('@Url.Action("Stops", "Reservation")?trainNo=' + encodeURIComponent(train.value), { credentials: 'same-origin' })
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        fill(from, data.stops);
+                        fill(to, data.stops);
+                        hint.textContent = 'Runs on: ' + data.runsOn;
+                    });
+            });
+        })();
+    </script>
+}

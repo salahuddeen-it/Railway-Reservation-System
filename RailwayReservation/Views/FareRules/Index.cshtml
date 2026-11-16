@@ -1,0 +1,40 @@
+﻿@using RailwayReservation.Helpers
+@model IEnumerable<RailwayReservation.Models.FareRule>
+@{
+    ViewBag.Title = "Fare Rules";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-cash-coin"></i> Fare Rules</h4>
+    <a href="@Url.Action("Create")" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Rule</a>
+</div>
+<p class="text-muted small">Fare per passenger = distance × rate of matching slab (not less than minimum fare).</p>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr><th>Class</th><th>From (km)</th><th>To (km)</th><th>Rate / km (Rs.)</th><th>Minimum Fare (Rs.)</th><th class="text-end">Actions</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Model)
+                {
+                    <tr>
+                        <td>@f.TravelClass.GetDisplayName()</td>
+                        <td>@f.FromKm</td>
+                        <td>@f.ToKm</td>
+                        <td>@f.RatePerKm.ToString("N2")</td>
+                        <td>@f.MinimumFare.ToString("N2")</td>
+                        <td class="text-end text-nowrap">
+                            <a href="@Url.Action("Edit", new { id = f.FareRuleId })" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            @using (Html.BeginForm("Delete", "FareRules", new { id = f.FareRuleId }, FormMethod.Post, new { @class = "d-inline", onsubmit = "return confirm('Delete this fare rule?');" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

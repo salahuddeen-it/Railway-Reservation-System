@@ -1,0 +1,39 @@
+﻿@model RailwayReservation.Models.TrainRunDay
+@{
+    ViewBag.Title = "Edit Running Days";
+}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Running Days</h5>
+                <small class="text-muted">@ViewBag.TrainText</small>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Edit", "RunDays", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2 small" })
+                    @Html.HiddenFor(m => m.TrainNo)
+
+                    <div class="mb-3">
+                        <div class="form-check form-check-inline">@Html.CheckBoxFor(m => m.Monday, new { @class = "form-check-input day" }) @Html.LabelFor(m => m.Monday, new { @class = "form-check-label" })</div>
+                        <div class="form-check form-check-inline">@Html.CheckBoxFor(m => m.Tuesday, new { @class = "form-check-input day" }) @Html.LabelFor(m => m.Tuesday, new { @class = "form-check-label" })</div>
+                        <div class="form-check form-check-inline">@Html.CheckBoxFor(m => m.Wednesday, new { @class = "form-check-input day" }) @Html.LabelFor(m => m.Wednesday, new { @class = "form-check-label" })</div>
+                        <div class="form-check form-check-inline">@Html.CheckBoxFor(m => m.Thursday, new { @class = "form-check-input day" }) @Html.LabelFor(m => m.Thursday, new { @class = "form-check-label" })</div>
+                        <div class="form-check form-check-inline">@Html.CheckBoxFor(m => m.Friday, new { @class = "form-check-input day" }) @Html.LabelFor(m => m.Friday, new { @class = "form-check-label" })</div>
+                        <div class="form-check form-check-inline">@Html.CheckBoxFor(m => m.Saturday, new { @class = "form-check-input day" }) @Html.LabelFor(m => m.Saturday, new { @class = "form-check-label" })</div>
+                        <div class="form-check form-check-inline">@Html.CheckBoxFor(m => m.Sunday, new { @class = "form-check-input day" }) @Html.LabelFor(m => m.Sunday, new { @class = "form-check-label" })</div>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-outline-secondary mb-3" onclick="document.querySelectorAll('.day').forEach(function(c){c.checked=true;})">Select All (Daily)</button>
+
+                    <div>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> Save</button>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

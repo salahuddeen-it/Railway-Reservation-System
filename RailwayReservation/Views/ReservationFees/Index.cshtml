@@ -1,0 +1,33 @@
+﻿@using RailwayReservation.Helpers
+@model IEnumerable<RailwayReservation.Models.ReservationFee>
+@{
+    ViewBag.Title = "Reservation & Super Fast Fees";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-receipt"></i> Reservation &amp; Super Fast Fees</h4>
+    <a href="@Url.Action("Create")" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add</a>
+</div>
+<p class="text-muted small">Charged per passenger. Super fast charge applies only to Super Fast trains.</p>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr><th>Class</th><th>Reservation Charge (Rs.)</th><th>Super Fast Charge (Rs.)</th><th class="text-end">Action</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Model)
+                {
+                    <tr>
+                        <td>@f.TravelClass.GetDisplayName()</td>
+                        <td>@f.ReservationCharge.ToString("N2")</td>
+                        <td>@f.SuperFastCharge.ToString("N2")</td>
+                        <td class="text-end">
+                            <a href="@Url.Action("Edit", new { id = f.FeeId })" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

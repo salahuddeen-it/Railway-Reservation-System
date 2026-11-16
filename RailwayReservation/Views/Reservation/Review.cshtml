@@ -1,0 +1,91 @@
+﻿@using RailwayReservation.Helpers
+@model RailwayReservation.ViewModels.BookingReviewViewModel
+@{
+    ViewBag.Title = "Confirm Booking";
+    var b = Model.Booking;
+    var q = Model.Quote;
+}
+<h4 class="mb-3"><i class="bi bi-clipboard-check"></i> Review &amp; Confirm Booking</h4>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="mb-0">@q.Train.TrainNo – @q.Train.TrainName</h5>
+                <div class="text-muted small mb-3">@q.Train.TrainType.GetDisplayName() · @b.TravelClass.GetDisplayName() · Journey date @b.JourneyDate.Value.ToString("dd MMM yyyy (ddd)")</div>
+
+                <div class="row text-center align-items-center border rounded py-3 mb-3 mx-0">
+                    <div class="col-5">
+                        <div class="fs-4 fw-semibold">@q.FromStop.Station.StationCode</div>
+                        <div class="small text-muted">@q.FromStop.Station.StationName</div>
+                        <div class="small">@(q.DepartureDateTime.HasValue ? q.DepartureDateTime.Value.ToString("dd MMM, HH:mm") : "")</div>
+                    </div>
+                    <div class="col-2"><i class="bi bi-arrow-right fs-3"></i><div class="small text-muted">@q.DistanceKm km</div></div>
+                    <div class="col-5">
+                        <div class="fs-4 fw-semibold">@q.ToStop.Station.StationCode</div>
+                        <div class="small text-muted">@q.ToStop.Station.StationName</div>
+                        <div class="small">@(q.ArrivalDateTime.HasValue ? q.ArrivalDateTime.Value.ToString("dd MMM, HH:mm") : "")</div>
+                    </div>
+                </div>
+
+                <table class="table table-sm align-middle mb-0">
+                    <thead class="table-light"><tr><th>#</th><th>Name</th><th>Age</th><th>Gender</th><th>Expected Status</th></tr></thead>
+                    <tbody>
+                        @for (int i = 0; i < b.Passengers.Count; i++)
+                        {
+                            var p = b.Passengers[i];
+                            <tr>
+                                <td>@(i + 1)</td>
+                                <td>@p.Name</td>
+                                <td>@p.Age</td>
+                                <td>@p.Gender</td>
+                                <td>
+                                    @if (i < q.AvailableSeats)
+                                    {<span class="badge bg-success">Confirmed</span> }
+                                    else
+                                    { <span class="badge bg-warning text-dark">Waitlist</span>}
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold">Fare Details</div>
+            <div class="card-body">
+                <p class="small mb-2"><i class="bi bi-person-check"></i> Seats available: <strong>@q.AvailableSeats</strong> of @q.TotalSeats</p>
+                <table class="table table-sm">
+                    <tr><td>Fare (@q.PassengerCount × Rs. @q.FarePerPassenger.ToString("N2"))</td><td class="text-end">Rs. @q.BaseFare.ToString("N2")</td></tr>
+                    <tr><td>Reservation charge</td><td class="text-end">Rs. @q.ReservationCharge.ToString("N2")</td></tr>
+                    <tr><td>Super fast charge</td><td class="text-end">Rs. @q.SuperFastCharge.ToString("N2")</td></tr>
+                    <tr class="fw-bold fs-5"><td>Total</td><td class="text-end">Rs. @q.TotalAmount.ToString("N2")</td></tr>
+                </table>
+
+                @* Hidden copy of the booking – everything is re-validated on the server *@
+                @using (Html.BeginForm("Confirm", "Reservation", FormMethod.Post, new { onsubmit = "return confirm('Confirm booking? Amount: Rs. " + q.TotalAmount.ToString("N2") + "');" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="TrainNo" value="@b.TrainNo" />
+                    <input type="hidden" name="JourneyDate" value="@b.JourneyDate.Value.ToString("yyyy-MM-dd")" />
+                    <input type="hidden" name="FromStationId" value="@b.FromStationId" />
+                    <input type="hidden" name="ToStationId" value="@b.ToStationId" />
+                    <input type="hidden" name="TravelClass" value="@((int)b.TravelClass)" />
+                    <input type="hidden" name="ContactMobile" value="@b.ContactMobile" />
+                    for (int i = 0; i < b.Passengers.Count; i++)
+                    {
+                        <input type="hidden" name="Passengers[@i].Name" value="@b.Passengers[i].Name" />
+                        <input type="hidden" name="Passengers[@i].Age" value="@b.Passengers[i].Age" />
+                        <input type="hidden" name="Passengers[@i].Gender" value="@((int)b.Passengers[i].Gender)" />
+                    }
+
+                    <button type="submit" class="btn btn-success w-100 btn-lg"><i class="bi bi-check2-circle"></i> Confirm &amp; Book</button>
+                }
+                <a href="javascript:history.back()" class="btn btn-outline-secondary w-100 mt-2">Back / Edit</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,91 @@
+﻿@model RailwayReservation.ViewModels.DashboardViewModel
+@{
+    ViewBag.Title = "Dashboard";
+}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="mb-0">Welcome, @Model.FullName</h3>
+        <span class="badge bg-secondary">@Model.Role</span>
+    </div>
+    <span class="text-muted">@DateTime.Today.ToString("dddd, dd MMM yyyy")</span>
+</div>
+
+@if (Model.IsStaff)
+{
+    @* Staff dashboard – key figures for today *@
+    <div class="row g-3">
+        <div class="col-6 col-md-4">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Active Trains</div>
+                    <div class="fs-3 fw-semibold">@Model.TotalTrains</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Stations</div>
+                    <div class="fs-3 fw-semibold">@Model.TotalStations</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Today's Bookings</div>
+                    <div class="fs-3 fw-semibold">@Model.TodaysBookings</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Received Today (Rs.)</div>
+                    <div class="fs-3 fw-semibold text-success">@Model.TodaysReceipts.ToString("N2")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Refunded Today (Rs.)</div>
+                    <div class="fs-3 fw-semibold text-danger">@Model.TodaysRefunds.ToString("N2")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Waitlisted Passengers</div>
+                    <div class="fs-3 fw-semibold text-warning">@Model.WaitlistedPassengers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex flex-wrap gap-2">
+        <a href="@Url.Action("Create", "Reservation")" class="btn btn-primary"><i class="bi bi-ticket-perforated"></i> New Reservation</a>
+        <a href="@Url.Action("Index", "Cancellation")" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i> Cancel Ticket</a>
+        <a href="@Url.Action("Index", "Query")" class="btn btn-outline-secondary"><i class="bi bi-search"></i> PNR Query</a>
+    </div>
+}
+else
+{
+    @* Customer dashboard *@
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">My Upcoming Trips</div>
+                    <div class="fs-3 fw-semibold">@Model.MyUpcomingTrips</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-4 d-flex flex-wrap gap-2">
+        <a href="@Url.Action("Create", "Reservation")" class="btn btn-primary"><i class="bi bi-ticket-perforated"></i> Book a Ticket</a>
+        <a href="@Url.Action("MyBookings", "Reservation")" class="btn btn-outline-primary"><i class="bi bi-list-ul"></i> My Bookings</a>
+        <a href="@Url.Action("Index", "Query")" class="btn btn-outline-secondary"><i class="bi bi-search"></i> PNR Status</a>
+    </div>
+}

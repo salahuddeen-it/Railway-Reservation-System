@@ -1,0 +1,101 @@
+﻿@using RailwayReservation.Helpers
+@using RailwayReservation.Models
+@model RailwayReservation.ViewModels.CancellationViewModel
+@{
+    ViewBag.Title = "Ticket Cancellation";
+    var passengerQuotes = ViewBag.PassengerQuotes as Dictionary<int, CancellationQuote> ?? new Dictionary<int, CancellationQuote>();
+}
+<h4 class="mb-3"><i class="bi bi-x-circle"></i> Ticket Cancellation</h4>
+
+@* Step 1: enter PNR *@
+<form method="get" class="row g-2 mb-3">
+    <div class="col-sm-8 col-md-4">
+        <input type="text" name="pnr" value="@Model.Pnr" class="form-control" placeholder="Enter 10-digit PNR" maxlength="10" required />
+    </div>
+    <div class="col-auto"><button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Find</button></div>
+</form>
+
+@foreach (var e in Model.Errors)
+{
+    <div class="alert alert-warning py-2">@e</div>
+}
+
+@if (Model.Details != null)
+{
+    @Html.Partial("_ReservationDetails", Model.Details)
+
+    if (Model.Details.Reservation.Status == ReservationStatus.Booked)
+    {
+        var r = Model.Details.Reservation;
+
+        @* Option A: cancel ONE passenger *@
+        if (passengerQuotes.Count > 0)
+        {
+            <div class="card border-warning mt-3">
+                <div class="card-header bg-white fw-semibold text-warning-emphasis">Option A – Cancel a single passenger</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="table-light"><tr><th>Passenger</th><th>Status</th><th class="text-end">Fee (Rs.)</th><th class="text-end">Refund (Rs.)</th><th></th></tr></thead>
+                        <tbody>
+                            @foreach (var p in r.Passengers.Where(x => x.Status != PassengerStatus.Cancelled).OrderBy(x => x.PassengerId))
+                            {
+                                if (!passengerQuotes.ContainsKey(p.PassengerId)) { continue; }
+                                var pq = passengerQuotes[p.PassengerId];
+                                <tr>
+                                    <td>@p.Name (@p.Age)</td>
+                                    <td>
+                                        @if (p.Status == PassengerStatus.Confirmed)
+                                        {<span class="badge bg-success">CNF @p.CoachNo/@p.SeatNo</span> }
+                                    else
+                                    { <span class="badge bg-warning text-dark">WL @p.WaitlistNo</span>}
+                                    </td>
+                                    <td class="text-end text-danger">@pq.CancellationFee.ToString("N2")</td>
+                                    <td class="text-end text-success">@pq.RefundAmount.ToString("N2")</td>
+                                    <td class="text-end">
+                                        @using (Html.BeginForm("CancelPassenger", "Cancellation", FormMethod.Post, new { @class = "d-inline", onsubmit = "return confirm('Cancel only " + p.Name.Replace("'", " ") + "? Refund: Rs. " + pq.RefundAmount.ToString("N2") + "');" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="pnr" value="@r.Pnr" />
+                                            <input type="hidden" name="passengerId" value="@p.PassengerId" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-person-x"></i> Cancel</button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+        @* Option B: cancel WHOLE PNR *@
+        if (Model.Quote != null)
+        {
+            var q = Model.Quote;
+            <div class="card border-danger mt-3">
+                <div class="card-body">
+                    <h5 class="text-danger">Option B – Cancel whole PNR (all remaining passengers)</h5>
+                    <table class="table table-sm mb-3">
+                        <tr><td>Departure</td><td class="text-end">@q.DepartureDateTime.ToString("dd MMM yyyy HH:mm") (@Math.Floor(q.HoursLeft) hrs left)</td></tr>
+                        @if (q.Rule != null)
+                        {
+                            <tr><td>Rule applied</td><td class="text-end">≥ @q.Rule.MinHoursBeforeDeparture hrs: @q.Rule.DeductionPercent.ToString("0.##")% (min Rs. @q.Rule.MinimumCharge.ToString("N2") / passenger)</td></tr>
+                        }
+                        <tr><td>Cancellation fee</td><td class="text-end text-danger">Rs. @q.CancellationFee.ToString("N2")</td></tr>
+                        <tr><td>Non-refundable charges</td><td class="text-end">Rs. @q.NonRefundableCharges.ToString("N2")</td></tr>
+                        <tr class="fw-bold"><td>Refund amount</td><td class="text-end text-success">Rs. @q.RefundAmount.ToString("N2")</td></tr>
+                    </table>
+                    @if (!string.IsNullOrEmpty(q.Note))
+                    {<p class="small text-muted">@q.Note</p>}
+
+                    @using (Html.BeginForm("Cancel", "Cancellation", FormMethod.Post, new { onsubmit = "return confirm('Cancel ALL remaining passengers on this PNR? This cannot be undone.');" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="pnr" value="@r.Pnr" />
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-x-circle"></i> Cancel Whole PNR</button>
+                    }
+                </div>
+            </div>
+        }
+    }
+}

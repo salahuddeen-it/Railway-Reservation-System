@@ -1,0 +1,103 @@
+﻿@using RailwayReservation.Helpers
+@{
+    // Current user + role flags decide which menus are visible
+    var rp = User as RailwayPrincipal;
+    bool isAdmin = rp != null && rp.IsInRole(AppRoles.Admin);
+    bool isClerk = rp != null && rp.IsInRole(AppRoles.Clerk);
+    bool isCustomer = rp != null && rp.IsInRole(AppRoles.Customer);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title - RailEase</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/Content/Site.css" />
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-semibold" href="@Url.Action("Index", "Home")">
+                <i class="bi bi-train-front"></i> RailEase
+            </a>
+            @if (rp != null)
+            {
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav me-auto">
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Masters</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "Stations")">Station Master</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "Trains")">Train Master</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "Schedules")">Train Schedule</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "RunDays")">Day Master</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "FareRules")">Fare Rules</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "CancellationRules")">Cancellation Rules</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "ReservationFees")">Reservation &amp; SF Fees</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Users")">Users</a></li>
+                        }
+                        @if (isAdmin || isClerk)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Transactions</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="@Url.Action("Create", "Reservation")">New Reservation</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "Cancellation")">Cancellation</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "Bookings")">All Bookings</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "Waitlist")">Allocate Waitlist Seats</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "CashReport")">Daily Cash Transactions</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Query")">PNR Query</a></li>
+                        }
+                        @if (isCustomer)
+                        {
+                            <li class="nav-item"><a class="nav-link" href="@Url.Action("Create", "Reservation")">Book Ticket</a></li>
+                            <li class="nav-item"><a class="nav-link" href="@Url.Action("MyBookings", "Reservation")">My Bookings</a></li>
+                            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Cancellation")">Cancel Ticket</a></li>
+                            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Query")">PNR Status</a></li>
+                        }
+                    </ul>
+                    <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
+                        <span class="navbar-text small text-white-50">
+                            <i class="bi bi-person-circle"></i> @rp.FullName (@rp.Role)
+                        </span>
+                        <a class="btn btn-sm btn-outline-light" href="@Url.Action("ChangePassword", "Account")" title="Change password">
+                            <i class="bi bi-key"></i>
+                        </a>
+                        @using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { @class = "d-inline" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-light"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </nav>
+
+    <main class="container py-4 flex-grow-1">
+        @Html.Partial("_Alerts")
+        @RenderBody()
+    </main>
+
+    <footer class="bg-white border-top py-3 text-center text-muted small no-print">
+        &copy; @DateTime.Now.Year RailEase – Railway Reservation &amp; Management System
+    </footer>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>
