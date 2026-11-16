@@ -32,6 +32,7 @@ Staff manage all master data, cancel tickets (whole PNR **or a single passenger*
 ## ✨ Features
 
 ### 🔐 Security
+
 - Role-based access: **Admin**, **Clerk** and **Customer**
 - Passwords hashed with **PBKDF2 (HMAC-SHA256, 100,000 iterations, random salt)**
 - System-generated default password with **forced change at first login**
@@ -39,6 +40,7 @@ Staff manage all master data, cancel tickets (whole PNR **or a single passenger*
 - CSRF protection, over-posting protection, open-redirect protection, HttpOnly/SameSite cookies
 
 ### 🗂️ Master Management (Admin)
+
 - Station Master (system-generated Station ID, code, name, division)
 - Train Master (train no, name, Up/Down, type, route, coaches per class)
 - Train Schedule (stops, arrival/departure, distance, day offset)
@@ -47,6 +49,7 @@ Staff manage all master data, cancel tickets (whole PNR **or a single passenger*
 - User Management
 
 ### 🎫 Transactions
+
 - **Reservation** – validates date (after today, within 90 days), running day, route and class; up to 6 passengers per PNR; review & confirmation page before saving
 - **Segment-aware seat allocation** – a seat can be resold for a later part of the route
 - **Cancellation** – whole PNR or individual passenger, automatic fee and refund calculation
@@ -54,6 +57,7 @@ Staff manage all master data, cancel tickets (whole PNR **or a single passenger*
 - **Daily Cash Transactions** – received, refunded and net amount, **export to Excel (CSV)**
 
 ### 🔎 Query & Reports
+
 - PNR enquiry with current coach/seat/waitlist status
 - All Bookings screen with Train, Date and Status filters
 - My Bookings and printable e-ticket
@@ -62,14 +66,14 @@ Staff manage all master data, cancel tickets (whole PNR **or a single passenger*
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | ASP.NET MVC 5, .NET Framework 4.8 |
-| Language | C# |
-| ORM | Entity Framework 6.4 (Code First) |
-| Database | Microsoft SQL Server / LocalDB |
-| Front-end | Razor, Bootstrap 5.3, Bootstrap Icons, jQuery Validation, Fetch API |
-| Authentication | Forms Authentication with custom principal and roles |
+| Layer          | Technology                                                          |
+| -------------- | ------------------------------------------------------------------- |
+| Framework      | ASP.NET MVC 5, .NET Framework 4.8                                   |
+| Language       | C#                                                                  |
+| ORM            | Entity Framework 6.4 (Code First)                                   |
+| Database       | Microsoft SQL Server / LocalDB                                      |
+| Front-end      | Razor, Bootstrap 5.3, Bootstrap Icons, jQuery Validation, Fetch API |
+| Authentication | Forms Authentication with custom principal and roles                |
 
 ---
 
@@ -112,16 +116,16 @@ The database is created **automatically** on the first run (Entity Framework Cod
 
 ## 📸 Screenshots
 
-| Login | Dashboard |
-|---|---|
+| Login                                | Dashboard                                    |
+| ------------------------------------ | -------------------------------------------- |
 | ![Login](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
 
-| New Reservation | Review & Confirm |
-|---|---|
+| New Reservation                                  | Review & Confirm                       |
+| ------------------------------------------------ | -------------------------------------- |
 | ![Reservation](docs/screenshots/reservation.png) | ![Review](docs/screenshots/review.png) |
 
-| E-Ticket | Cancellation |
-|---|---|
+| E-Ticket                               | Cancellation                                       |
+| -------------------------------------- | -------------------------------------------------- |
 | ![Ticket](docs/screenshots/ticket.png) | ![Cancellation](docs/screenshots/cancellation.png) |
 
 ---
@@ -129,14 +133,16 @@ The database is created **automatically** on the first run (Entity Framework Cod
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Windows 10/11
 - Visual Studio 2019 or 2022 with the **ASP.NET and web development** and **Data storage** workloads
 - SQL Server Express LocalDB (installed with Visual Studio)
 
 ### Run Locally
+
 1. Clone the repository
    ```bash
-   git clone https://github.com/USERNAME/REPO-NAME.git
+   git clone https://github.com/salahuddeen-it/Railway-Reservation-System.git
    ```
 2. Open `RailwayReservation.sln` in Visual Studio.
 3. Restore NuGet packages (right-click the solution → **Restore NuGet Packages**).
@@ -145,10 +151,10 @@ The database is created **automatically** on the first run (Entity Framework Cod
 
 ### Demo Accounts
 
-| Role | User Name | Password |
-|---|---|---|
-| Admin | `admin` | `Admin123` |
-| Clerk | `clerk` | `Clerk123` |
+| Role     | User Name  | Password      |
+| -------- | ---------- | ------------- |
+| Admin    | `admin`    | `Admin123`    |
+| Clerk    | `clerk`    | `Clerk123`    |
 | Customer | `customer` | `Customer123` |
 
 > These accounts are for local demonstration only.
@@ -159,12 +165,12 @@ The database is created **automatically** on the first run (Entity Framework Cod
 
 **Fare:** Train 12951 (Mumbai Rajdhani), BCT → NDLS, 3A class, 1386 km
 
-| Item | Amount |
-|---|---|
-| Fare (1386 km × Rs. 1.80, slab 501–1500 km) | Rs. 2,495 |
-| Reservation charge | Rs. 40 |
-| Super fast charge | Rs. 45 |
-| **Total per passenger** | **Rs. 2,580** |
+| Item                                        | Amount        |
+| ------------------------------------------- | ------------- |
+| Fare (1386 km × Rs. 1.80, slab 501–1500 km) | Rs. 2,495     |
+| Reservation charge                          | Rs. 40        |
+| Super fast charge                           | Rs. 45        |
+| **Total per passenger**                     | **Rs. 2,580** |
 
 **Cancellation:** the applicable rule depends on the hours left before departure (≥ 48 h: 10%, ≥ 12 h: 25%, ≥ 4 h: 50%, otherwise 100%), with a minimum charge per passenger. Waitlisted passengers receive a full fare refund.
 
@@ -183,8 +189,9 @@ The database is created **automatically** on the first run (Entity Framework Cod
 ## 👤 Author
 
 **Salahuddeen**
-- GitHub: [@USERNAME](https://github.com/USERNAME)
-- LinkedIn: _add your profile link_
+
+- GitHub: [@salahuddeen-it](https://github.com/salahuddeen-it)
+- LinkedIn: https://www.linkedin.com/in/muhammad-shakeel-4b10273aa/
 
 ---
 
