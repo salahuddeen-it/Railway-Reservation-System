@@ -116,9 +116,9 @@ The database is created **automatically** on the first run (Entity Framework Cod
 
 ## 📸 Screenshots
 
-| Home                               | Dashboard                                    |
-| ---------------------------------- | -------------------------------------------- |
-| ![Home](docs/screenshots/home.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+| Home 1                                | Home 2                                |
+| ------------------------------------- | ------------------------------------- |
+| ![Home-1](docs/screenshots/home1.png) | ![Home-2](docs/screenshots/home2.png) |
 
 | Login                                | Dashboard                                    |
 | ------------------------------------ | -------------------------------------------- |
