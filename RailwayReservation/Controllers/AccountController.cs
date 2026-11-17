@@ -17,7 +17,7 @@ namespace RailwayReservation.Controllers
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
-            if (Request.IsAuthenticated) return RedirectToAction("Index", "Home");
+            if (Request.IsAuthenticated) return RedirectToAction("Dashboard", "Home");
             ViewBag.ReturnUrl = returnUrl;
             return View(new LoginViewModel());
         }
@@ -81,7 +81,7 @@ namespace RailwayReservation.Controllers
             }
 
             if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl); // prevents open redirect
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Dashboard", "Home");
         }
 
         // POST: /Account/Logout
@@ -129,7 +129,7 @@ namespace RailwayReservation.Controllers
             Db.SaveChanges();
 
             ShowSuccess("Password changed successfully.");
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Dashboard", "Home");
         }
     }
 }

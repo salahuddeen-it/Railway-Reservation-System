@@ -1,91 +1,508 @@
-﻿@model RailwayReservation.ViewModels.DashboardViewModel
+﻿@using RailwayReservation.ViewModels
+@model RailwayReservation.ViewModels.ContactViewModel
 @{
-    ViewBag.Title = "Dashboard";
-}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h3 class="mb-0">Welcome, @Model.FullName</h3>
-        <span class="badge bg-secondary">@Model.Role</span>
-    </div>
-    <span class="text-muted">@DateTime.Today.ToString("dddd, dd MMM yyyy")</span>
-</div>
+    ViewBag.Title = "Online Railway Reservation";
+    Layout = "~/Views/Shared/_LandingLayout.cshtml";
+    var trains = ViewBag.Trains as List<LandingTrainItem> ?? new List<LandingTrainItem>();
 
-@if (Model.IsStaff)
-{
-    @* Staff dashboard – key figures for today *@
-    <div class="row g-3">
-        <div class="col-6 col-md-4">
-            <div class="card stat-card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-muted small">Active Trains</div>
-                    <div class="fs-3 fw-semibold">@Model.TotalTrains</div>
-                </div>
-            </div>
+    // ===== Real photos (free Unsplash / Pexels / Pixabay licence). To change a photo, change it here only. =====
+    // Unsplash: give only the photo id. Pexels/Pixabay: give the full link.
+    Func<string, int, string> U = (id, w) => !id.StartsWith("http")
+        ? "https://images.unsplash.com/" + id + "?auto=format&fit=crop&w=" + w + "&q=70"
+        : (id.Contains("?") ? id + "&w=" + w : id);
+
+    var slides = new[]
+    {
+        new { Id = "photo-1677096266598-f0b8f9909862", Place = "Gorges du Fier, France" },
+        new { Id = "photo-1768039552463-b836ddd4d3b0", Place = "Misty forest, Taiwan" },
+        new { Id = "https://images.pexels.com/photos/11321846/pexels-photo-11321846.jpeg?auto=compress&cs=tinysrgb", Place = "Wuxi, China" },
+        new { Id = "photo-1760419568821-0f05c6eb9522", Place = "Stone bridge, Spain" },
+        new { Id = "photo-1715199281917-5e5b20d5c038", Place = "Green countryside" },
+        new { Id = "photo-1515718486653-d63accc9cb3f", Place = "Mountain forest line" },
+        new { Id = "photo-1678275521676-9188f6d76b33", Place = "Owani, Aomori, Japan" },
+        new { Id = "photo-1541985913903-21dead7846f5", Place = "Kato Zachlorou, Greece" },
+        new { Id = "photo-1760419590367-99a65e112970", Place = "Sóller, Mallorca, Spain" },
+        new { Id = "photo-1723392612082-bc5c336f50cd", Place = "Chongqing, China" },
+        new { Id = "https://cdn.pixabay.com/photo/2020/12/12/20/00/train-5826430_1280.jpg", Place = "Guilin karst mountains, China" }
+    };
+    string[] gallerySize = { "tall", "wide", "", "", "", "", "wide", "wide", "", "", "wide" };
+
+    string imgForestTrack = U("photo-1761234653357-338b8fbf5712", 1400);   // empty track in green forest
+    string imgPrairieTrack = U("photo-1608638917537-391a062ac096", 1400);  // empty track across open plains
+    string imgNightTrain = U("photo-1704141473368-45dd8a747fa1", 1920);    // train at night (storm section)
+    string imgStormFarm = "https://images.pexels.com/photos/38299286/pexels-photo-38299286/free-photo-of-dramatic-thunderstorm-over-farmland-landscape.jpeg?auto=compress&cs=tinysrgb&w=1920";
+}
+
+<!-- ================= HERO PHOTO SLIDER ================= -->
+<section class="hero-slider" id="home">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5500" data-bs-pause="false">
+        <div class="carousel-indicators">
+            @for (int i = 0; i < slides.Length; i++)
+            {
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-label="Slide @(i + 1)"></button>
+            }
         </div>
-        <div class="col-6 col-md-4">
-            <div class="card stat-card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-muted small">Stations</div>
-                    <div class="fs-3 fw-semibold">@Model.TotalStations</div>
+        <div class="carousel-inner">
+            @for (int i = 0; i < slides.Length; i++)
+            {
+                <div class="carousel-item @(i == 0 ? "active" : "")">
+                    <div class="slide-bg" style="background-image:url('@U(slides[i].Id, 1920)')"></div>
+                    <div class="slide-caption"><i class="bi bi-geo-alt-fill text-warning"></i> @slides[i].Place</div>
                 </div>
-            </div>
+            }
         </div>
-        <div class="col-6 col-md-4">
-            <div class="card stat-card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-muted small">Today's Bookings</div>
-                    <div class="fs-3 fw-semibold">@Model.TodaysBookings</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4">
-            <div class="card stat-card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-muted small">Received Today (Rs.)</div>
-                    <div class="fs-3 fw-semibold text-success">@Model.TodaysReceipts.ToString("N2")</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4">
-            <div class="card stat-card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-muted small">Refunded Today (Rs.)</div>
-                    <div class="fs-3 fw-semibold text-danger">@Model.TodaysRefunds.ToString("N2")</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4">
-            <div class="card stat-card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-muted small">Waitlisted Passengers</div>
-                    <div class="fs-3 fw-semibold text-warning">@Model.WaitlistedPassengers</div>
-                </div>
-            </div>
-        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next</span>
+        </button>
     </div>
 
-    <div class="mt-4 d-flex flex-wrap gap-2">
-        <a href="@Url.Action("Create", "Reservation")" class="btn btn-primary"><i class="bi bi-ticket-perforated"></i> New Reservation</a>
-        <a href="@Url.Action("Index", "Cancellation")" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i> Cancel Ticket</a>
-        <a href="@Url.Action("Index", "Query")" class="btn btn-outline-secondary"><i class="bi bi-search"></i> PNR Query</a>
+    <div class="hero-content">
+        <div class="container">
+            <div class="hero-badge"><i class="bi bi-stars"></i> Online Railway Reservation System</div>
+            <h1>Journey Smarter.<br />Travel <span class="text-warning">Beautifully.</span></h1>
+            <p class="lead mt-3 mb-4">
+                Search trains, reserve your seat and receive your e-ticket with a confirmed PNR in minutes —
+                fast, secure and available around the clock.
+            </p>
+            <a href="@Url.Action("Create", "Reservation")" class="btn btn-book">
+                <i class="bi bi-ticket-perforated me-2"></i> Book Your Ticket <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <div class="mt-3 small">
+                <a href="@Url.Action("Index", "Query")" class="link-light text-decoration-none opacity-75">Already booked? Check your PNR status →</a>
+            </div>
+        </div>
     </div>
-}
-else
-{
-    @* Customer dashboard *@
-    <div class="row g-3">
-        <div class="col-md-4">
-            <div class="card stat-card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-muted small">My Upcoming Trips</div>
-                    <div class="fs-3 fw-semibold">@Model.MyUpcomingTrips</div>
+    <a href="#why" class="scroll-hint" aria-label="Scroll down"><i class="bi bi-chevron-double-down"></i></a>
+</section>
+
+<!-- ================= STATS STRIP ================= -->
+<section class="stats">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-6 col-md-3"><div class="stat-num">@(ViewBag.TrainCount)+</div><div class="stat-label">Active Trains</div></div>
+            <div class="col-6 col-md-3"><div class="stat-num">@(ViewBag.StationCount)+</div><div class="stat-label">Stations Connected</div></div>
+            <div class="col-6 col-md-3"><div class="stat-num">5</div><div class="stat-label">Travel Classes</div></div>
+            <div class="col-6 col-md-3"><div class="stat-num">24/7</div><div class="stat-label">Online Booking</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= WHY TRAVEL BY TRAIN (photo cards) ================= -->
+<section class="section" id="why">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <div class="eyebrow">Why Rail Travel</div>
+            <h2 class="section-title">The Smartest Way to Travel</h2>
+            <p class="section-sub">Trains connect cities, towns and villages across the country — combining comfort, safety and value in a way no other transport can.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-sm-6 col-lg-3 reveal">
+                <div class="feature-card has-img">
+                    <div class="card-photo" style="background-image:url('@U("photo-1768039552463-b836ddd4d3b0", 700)')"></div>
+                    <div class="card-body-x">
+                        <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
+                        <h5>Safe &amp; Reliable</h5>
+                        <p>Rail is one of the safest modes of land transport, with dedicated tracks and trained crews on every journey.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3 reveal">
+                <div class="feature-card has-img">
+                    <div class="card-photo" style="background-image:url('@U("photo-1515718486653-d63accc9cb3f", 700)')"></div>
+                    <div class="card-body-x">
+                        <div class="feature-icon"><i class="bi bi-cup-hot"></i></div>
+                        <h5>Comfortable Journeys</h5>
+                        <p>Spacious berths, room to walk around and the freedom to relax, read or sleep while the miles roll by.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3 reveal">
+                <div class="feature-card has-img">
+                    <div class="card-photo" style="background-image:url('@U("photo-1715199281917-5e5b20d5c038", 700)')"></div>
+                    <div class="card-body-x">
+                        <div class="feature-icon"><i class="bi bi-tree"></i></div>
+                        <h5>Eco-Friendly</h5>
+                        <p>Trains move many passengers at once, producing far less pollution per traveller than cars or planes.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3 reveal">
+                <div class="feature-card has-img">
+                    <div class="card-photo" style="background-image:url('@U("photo-1678275521676-9188f6d76b33", 700)')"></div>
+                    <div class="card-body-x">
+                        <div class="feature-icon"><i class="bi bi-wallet2"></i></div>
+                        <h5>Affordable Fares</h5>
+                        <p>Distance-based fares and multiple classes mean there is a comfortable option for every budget.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="mt-4 d-flex flex-wrap gap-2">
-        <a href="@Url.Action("Create", "Reservation")" class="btn btn-primary"><i class="bi bi-ticket-perforated"></i> Book a Ticket</a>
-        <a href="@Url.Action("MyBookings", "Reservation")" class="btn btn-outline-primary"><i class="bi bi-list-ul"></i> My Bookings</a>
-        <a href="@Url.Action("Index", "Query")" class="btn btn-outline-secondary"><i class="bi bi-search"></i> PNR Status</a>
+</section>
+
+<!-- ================= BIG PHOTO BANNERS ================= -->
+<section class="section section-alt">
+    <div class="container">
+        <div class="row align-items-center g-5 mb-5 reveal">
+            <div class="col-lg-6">
+                <div class="banner-img" style="background-image:url('@imgForestTrack')"><span class="banner-tag"><i class="bi bi-tree-fill text-warning"></i> Silent tracks through the forest</span></div>
+            </div>
+            <div class="col-lg-6 banner-text">
+                <div class="eyebrow">Scenic Routes</div>
+                <h3>Discover the Beauty Between Destinations</h3>
+                <p>Rail journeys turn travel into an experience. Quiet tracks curve through green forests, past rivers and over hills — sights you would never see from a highway or an aircraft. Sit back and enjoy the landscape while your train carries you safely to your destination.</p>
+            </div>
+        </div>
+
+        <div class="row align-items-center g-5 mb-5 flex-lg-row-reverse reveal">
+            <div class="col-lg-6">
+                <div class="banner-img" style="background-image:url('@imgPrairieTrack')"><span class="banner-tag"><i class="bi bi-sun-fill text-warning"></i> Across open plains</span></div>
+            </div>
+            <div class="col-lg-6 banner-text">
+                <div class="eyebrow">Long-Distance Travel</div>
+                <h3>From Open Plains to Busy Cities</h3>
+                <p>Railway lines stretch across wide open fields, quiet grasslands and remote countryside, linking places that roads barely reach. Choose the class that suits your journey — from the privacy of AC First Class to the value of Sleeper Class.</p>
+                <ul class="check-list">
+                    <li><i class="bi bi-check-circle-fill"></i>Clear, distance-based fares</li>
+                    <li><i class="bi bi-check-circle-fill"></i>Up to 6 passengers on one ticket</li>
+                    <li><i class="bi bi-check-circle-fill"></i>Confirmed coach and seat numbers</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row align-items-center g-5 reveal">
+            <div class="col-lg-6">
+                <div class="banner-img" style="background-image:url('@U("photo-1760419568821-0f05c6eb9522", 1400)')"><span class="banner-tag"><i class="bi bi-geo-alt-fill text-warning"></i> Historic stone bridge</span></div>
+            </div>
+            <div class="col-lg-6 banner-text">
+                <div class="eyebrow">Book with Confidence</div>
+                <h3>No Queues. No Paper Forms.</h3>
+                <p>Skip the reservation counter. Choose your train, enter passenger details and confirm — RailEase validates your journey, allots your seat and generates a printable e-ticket with a unique PNR. Need to change plans? Cancel a single passenger or the whole ticket online.</p>
+                <a href="@Url.Action("Create", "Reservation")" class="btn btn-primary btn-lg rounded-pill px-4 mt-2">
+                    <i class="bi bi-ticket-perforated me-1"></i> Reserve Now
+                </a>
+            </div>
+        </div>
     </div>
+</section>
+
+<!-- ================= ANIMATED STORM SECTION ================= -->
+<section class="storm" id="storm">
+    <div class="storm-bg" style="background-image:url('@imgNightTrain')"></div>
+    <canvas id="rainCanvas"></canvas>
+    <div class="storm-flash" id="stormFlash"></div>
+    <div class="container">
+        <div class="eyebrow">All-Weather Railway</div>
+        <h2 class="mt-2 mb-3">Through Storm, Rain &amp; Night</h2>
+        <p class="mb-4">
+            When thunder rolls and rain pours down, the railway keeps moving. Modern signalling, experienced crews and
+            strong rolling stock keep passengers safe in every season — by day and by night.
+        </p>
+        <span class="storm-chip"><i class="bi bi-cloud-lightning-rain"></i> All-season routes</span>
+        <span class="storm-chip"><i class="bi bi-moon-stars"></i> Night trains</span>
+        <span class="storm-chip"><i class="bi bi-shield-check"></i> Safety first</span>
+    </div>
+</section>
+
+<!-- ================= POPULAR TRAINS (from database) ================= -->
+<section class="section" id="trains">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <div class="eyebrow">Our Network</div>
+            <h2 class="section-title">Popular Trains</h2>
+            <p class="section-sub">Live information from our reservation system — routes, departure times and running days.</p>
+        </div>
+        <div class="row g-4">
+            @foreach (var tr in trains)
+            {
+                <div class="col-md-6 col-lg-4 reveal">
+                    <div class="train-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="train-no">@tr.TrainNo</div>
+                                <div class="fw-semibold">@tr.TrainName</div>
+                            </div>
+                            <span class="badge bg-warning text-dark">@tr.TrainType</span>
+                        </div>
+                        <div class="train-route">
+                            <div><div class="code">@tr.FromCode</div><div class="name">@tr.FromName</div></div>
+                            <div class="line"><i class="bi bi-train-front-fill"></i></div>
+                            <div class="text-end"><div class="code">@tr.ToCode</div><div class="name">@tr.ToName</div></div>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted mb-3">
+                            <span><i class="bi bi-clock"></i> Dep @(tr.Departure.HasValue ? tr.Departure.Value.ToString("hh\\:mm") : "-")</span>
+                            <span><i class="bi bi-signpost"></i> @tr.DistanceKm km</span>
+                            <span><i class="bi bi-calendar-week"></i> @tr.RunsOn</span>
+                        </div>
+                        <a href="@Url.Action("Create", "Reservation")" class="btn btn-outline-primary w-100 rounded-pill">Book this train</a>
+                    </div>
+                </div>
+            }
+            @if (!trains.Any())
+            {
+                <div class="col-12 text-center text-muted">Train information will appear here once trains are added.</div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ================= PHOTO GALLERY (mixed sizes) ================= -->
+<section class="section section-alt">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <div class="eyebrow">Gallery</div>
+            <h2 class="section-title">Journeys Around the World</h2>
+            <p class="section-sub">Forests, mountains, open fields and snowy valleys — some of the most beautiful railway routes on earth.</p>
+        </div>
+        <div class="gallery reveal">
+            @for (int i = 0; i < slides.Length; i++)
+            {
+                <div class="g-item @gallerySize[i]">
+                    <div class="g-img" style="background-image:url('@U(slides[i].Id, 900)')"></div>
+                    <span><i class="bi bi-geo-alt-fill text-warning"></i> @slides[i].Place</span>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ================= TRAVEL CLASSES ================= -->
+<section class="section" id="classes">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <div class="eyebrow">Travel Classes</div>
+            <h2 class="section-title">Choose Your Comfort</h2>
+        </div>
+        <div class="row g-4 row-cols-2 row-cols-md-3 row-cols-lg-5">
+            <div class="col reveal"><div class="class-card"><span class="class-badge">1A</span><h6>AC First Class</h6><p>Private cabins with premium comfort for long journeys.</p></div></div>
+            <div class="col reveal"><div class="class-card"><span class="class-badge">2A</span><h6>AC 2 Tier</h6><p>Air-conditioned berths with curtains for extra privacy.</p></div></div>
+            <div class="col reveal"><div class="class-card"><span class="class-badge">3A</span><h6>AC 3 Tier</h6><p>The most popular air-conditioned class at great value.</p></div></div>
+            <div class="col reveal"><div class="class-card"><span class="class-badge">FC</span><h6>First Class</h6><p>Comfortable non-AC compartments with fewer passengers.</p></div></div>
+            <div class="col reveal"><div class="class-card"><span class="class-badge">SL</span><h6>Sleeper Class</h6><p>Budget-friendly reserved berths for overnight travel.</p></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= HOW IT WORKS + ANIMATED STORM BANNER ================= -->
+<section class="section section-alt">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <div class="eyebrow">Simple Process</div>
+            <h2 class="section-title">Book in 4 Easy Steps</h2>
+        </div>
+        <div class="row g-4 text-center">
+            <div class="col-6 col-lg-3 reveal"><div class="step-num">1</div><h6 class="fw-bold">Choose Train</h6><p class="text-muted small">Select your train, journey date, stations and class.</p></div>
+            <div class="col-6 col-lg-3 reveal"><div class="step-num">2</div><h6 class="fw-bold">Add Passengers</h6><p class="text-muted small">Enter names and ages for up to 6 passengers.</p></div>
+            <div class="col-6 col-lg-3 reveal"><div class="step-num">3</div><h6 class="fw-bold">Review &amp; Confirm</h6><p class="text-muted small">See seat availability and the full fare before booking.</p></div>
+            <div class="col-6 col-lg-3 reveal"><div class="step-num">4</div><h6 class="fw-bold">Get E-Ticket</h6><p class="text-muted small">Receive your PNR, coach and seat — print it anytime.</p></div>
+        </div>
+
+        <div class="cta-storm text-center mt-5 reveal">
+            <div class="cta-bg" style="background-image:url('@imgStormFarm')"></div>
+            <div class="cta-flash"></div>
+            <div class="cta-content">
+                <h3 class="fw-bold mb-2">Whatever the weather, your journey awaits.</h3>
+                <p class="opacity-75 mb-4">Reserve your seat now and travel with complete peace of mind.</p>
+                <a href="@Url.Action("Create", "Reservation")" class="btn btn-book"><i class="bi bi-ticket-perforated me-2"></i> Book Your Ticket <i class="bi bi-arrow-right ms-2"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section class="section" id="about">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 reveal">
+                <div class="about-photos">
+                    <div class="main" style="background-image:url('@U("photo-1677096266598-f0b8f9909862", 1200)')"></div>
+                    <div class="small" style="background-image:url('@U("photo-1541985913903-21dead7846f5", 700)')"></div>
+                </div>
+            </div>
+            <div class="col-lg-6 reveal">
+                <div class="eyebrow">About Us</div>
+                <h2 class="section-title mb-3">About RailEase</h2>
+                <p class="text-muted" style="line-height:1.85">
+                    RailEase is a modern railway reservation and management platform built to replace slow, paper-based counter bookings.
+                    It brings train schedules, fares, seat availability, reservations, cancellations and refunds together in one secure system.
+                </p>
+                <p class="text-muted" style="line-height:1.85">
+                    Our goal is simple: make every journey begin with a fast, transparent and stress-free booking experience —
+                    for passengers and for railway staff alike.
+                </p>
+                <div class="row g-3 mt-2">
+                    <div class="col-6"><div class="d-flex align-items-center gap-2"><i class="bi bi-lightning-charge-fill text-warning fs-4"></i><span class="fw-semibold">Fast booking</span></div></div>
+                    <div class="col-6"><div class="d-flex align-items-center gap-2"><i class="bi bi-lock-fill text-warning fs-4"></i><span class="fw-semibold">Secure accounts</span></div></div>
+                    <div class="col-6"><div class="d-flex align-items-center gap-2"><i class="bi bi-eye-fill text-warning fs-4"></i><span class="fw-semibold">Transparent fares</span></div></div>
+                    <div class="col-6"><div class="d-flex align-items-center gap-2"><i class="bi bi-phone-fill text-warning fs-4"></i><span class="fw-semibold">Any device</span></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section class="section section-alt" id="contact">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <div class="eyebrow">Get in Touch</div>
+            <h2 class="section-title">Contact Us</h2>
+            <p class="section-sub">Have a question about a booking, refund or schedule? Send us a message.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 reveal">
+                <div class="contact-info">
+                    <h5 class="fw-bold mb-4">Customer Support</h5>
+                    <p class="mb-4"><i class="bi bi-headset"></i> Online booking available 24/7</p>
+                    <p class="mb-4"><i class="bi bi-envelope"></i> support@example.com</p>
+                    <p class="mb-4"><i class="bi bi-telephone"></i> +00 000 0000000</p>
+                    <p class="mb-0"><i class="bi bi-geo-alt"></i> Railway Reservation Office</p>
+                </div>
+            </div>
+            <div class="col-lg-8 reveal">
+                <div class="contact-card">
+                    @Html.Partial("_Alerts")
+                    @using (Html.BeginForm("Contact", "Home", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2 small" })
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                @Html.LabelFor(m => m.Name, new { @class = "form-label" })
+                                @Html.TextBoxFor(m => m.Name, new { @class = "form-control form-control-lg", placeholder = "Your full name" })
+                                @Html.ValidationMessageFor(m => m.Name)
+                            </div>
+                            <div class="col-md-6">
+                                @Html.LabelFor(m => m.Email, new { @class = "form-label" })
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control form-control-lg", type = "email", placeholder = "name@email.com" })
+                                @Html.ValidationMessageFor(m => m.Email)
+                            </div>
+                            <div class="col-12">
+                                @Html.LabelFor(m => m.Subject, new { @class = "form-label" })
+                                @Html.TextBoxFor(m => m.Subject, new { @class = "form-control form-control-lg", placeholder = "How can we help?" })
+                                @Html.ValidationMessageFor(m => m.Subject)
+                            </div>
+                            <div class="col-12">
+                                @Html.LabelFor(m => m.Message, new { @class = "form-label" })
+                                @Html.TextAreaFor(m => m.Message, 5, 20, new { @class = "form-control", placeholder = "Write your message..." })
+                                @Html.ValidationMessageFor(m => m.Message)
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 mt-4"><i class="bi bi-send me-1"></i> Send Message</button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <p class="photo-credits text-center mt-5 mb-0">
+            Photos by Antonio Vivace, Iris Yan, Marius Matuschzik, Bernd Dittrich, Wil Stewart, Seiya Maeda, Alex Kalligas,
+            Marie Proročenko, Pietro De Grandi, Fang Guo and David Levêque on <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a>;
+            Wuxi and storm photos from <a href="https://www.pexels.com" target="_blank" rel="noopener">Pexels</a>;
+            Guilin photo from <a href="https://pixabay.com" target="_blank" rel="noopener">Pixabay</a>.
+        </p>
+    </div>
+</section>
+
+@section scripts {
+    @if (ViewBag.ScrollToContact != null)
+    {
+        <script>document.getElementById('contact').scrollIntoView();</script>
+    }
+
+    <script>
+        // Preload all slider photos so the next slide is ready (no empty/dark gap)
+        (function () {
+            var slides = document.querySelectorAll('.slide-bg');
+            for (var i = 0; i < slides.length; i++) {
+                var m = slides[i].style.backgroundImage.match(/url\(["']?(.*?)["']?\)/);
+                if (m) { var img = new Image(); img.src = m[1]; }
+            }
+        })();
+    </script>
+
+    <script>
+        // Animated storm: falling rain + random lightning bolts + sky flash + slight shake
+        (function () {
+            var section = document.getElementById('storm');
+            var canvas = document.getElementById('rainCanvas');
+            var flash = document.getElementById('stormFlash');
+            if (!section || !canvas || !canvas.getContext) return;
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            var ctx = canvas.getContext('2d');
+            var W = 0, H = 0, drops = [], bolts = [];
+
+            function resize() {
+                W = canvas.width = section.clientWidth;
+                H = canvas.height = section.clientHeight;
+                drops = [];
+                var count = Math.floor(W * H / 7000);
+                for (var i = 0; i < count; i++) {
+                    drops.push({ x: Math.random() * W, y: Math.random() * H, len: 12 + Math.random() * 22, speed: 14 + Math.random() * 10 });
+                }
+            }
+
+            function makeBolt() {
+                var x = W * (0.15 + Math.random() * 0.7), y = 0, pts = [[x, y]];
+                while (y < H * 0.6) {
+                    x += (Math.random() - 0.5) * 70;
+                    y += 18 + Math.random() * 32;
+                    pts.push([x, y]);
+                }
+                return { pts: pts, life: 14 };
+            }
+
+            function strike() {
+                bolts.push(makeBolt());
+                flash.classList.remove('on'); void flash.offsetWidth; flash.classList.add('on');
+                section.classList.remove('shake'); void section.offsetWidth; section.classList.add('shake');
+                setTimeout(strike, 3500 + Math.random() * 5000);
+            }
+
+            function frame() {
+                ctx.clearRect(0, 0, W, H);
+
+                // rain
+                ctx.strokeStyle = 'rgba(180, 200, 230, 0.55)';
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                for (var i = 0; i < drops.length; i++) {
+                    var d = drops[i];
+                    ctx.moveTo(d.x, d.y);
+                    ctx.lineTo(d.x - 4, d.y + d.len);
+                    d.y += d.speed; d.x -= 1.5;
+                    if (d.y > H) { d.y = -30; d.x = Math.random() * (W + 100); }
+                }
+                ctx.stroke();
+
+                // lightning bolts (fade out)
+                for (var b = 0; b < bolts.length; b++) {
+                    var bolt = bolts[b];
+                    ctx.strokeStyle = 'rgba(255, 255, 255, ' + (bolt.life / 14) + ')';
+                    ctx.lineWidth = 3;
+                    ctx.shadowColor = '#9ecbff';
+                    ctx.shadowBlur = 25;
+                    ctx.beginPath();
+                    for (var p = 0; p < bolt.pts.length; p++) {
+                        if (p === 0) ctx.moveTo(bolt.pts[p][0], bolt.pts[p][1]);
+                        else ctx.lineTo(bolt.pts[p][0], bolt.pts[p][1]);
+                    }
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                    bolt.life--;
+                }
+                bolts = bolts.filter(function (x) { return x.life > 0; });
+
+                requestAnimationFrame(frame);
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+            frame();
+            setTimeout(strike, 1500);
+        })();
+    </script>
 }

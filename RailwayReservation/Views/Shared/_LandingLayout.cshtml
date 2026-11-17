@@ -1,0 +1,126 @@
+﻿@using RailwayReservation.Helpers
+@{
+    // Logged-in user (null for visitors)
+    var rp = User as RailwayPrincipal;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="RailEase – book train tickets online, check PNR status and manage reservations." />
+    <title>@ViewBag.Title - RailEase</title>
+    <script>document.documentElement.classList.add('js');</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/Content/landing.css" />
+</head>
+<body class="landing">
+
+    <!-- ================= NAVIGATION ================= -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top landing-nav" id="landingNav">
+        <div class="container">
+            <a class="navbar-brand brand-mark fw-bold fs-4" href="@Url.Action("Index", "Home")">
+                <i class="bi bi-train-front-fill text-warning"></i> Rail<span>Ease</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landingMenu" aria-label="Menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="landingMenu">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Home")#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Home")#trains">Trains</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Home")#classes">Classes</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Reservation</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="@Url.Action("Create", "Reservation")"><i class="bi bi-ticket-perforated me-2"></i>New Reservation</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "Query")"><i class="bi bi-search me-2"></i>PNR Status</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "Cancellation")"><i class="bi bi-x-circle me-2"></i>Cancel Ticket</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("MyBookings", "Reservation")"><i class="bi bi-list-ul me-2"></i>My Bookings</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Home")#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Home")#contact">Contact</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
+                    @if (rp != null)
+                    {
+                        <a href="@Url.Action("Dashboard", "Home")" class="btn btn-warning btn-sm rounded-pill px-3 fw-semibold"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                        using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { @class = "d-inline" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-light btn-sm rounded-pill px-3">Logout</button>
+                        }
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Login", "Account")" class="btn btn-warning rounded-pill px-4 fw-semibold"><i class="bi bi-person-circle"></i> Login</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    @RenderBody()
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="landing-footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    <div class="brand-mark fw-bold fs-4 mb-2"><i class="bi bi-train-front-fill text-warning"></i> Rail<span>Ease</span></div>
+                    <p class="small">A modern online railway reservation and management system — fast booking, transparent fares and secure journeys.</p>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="@Url.Action("Index", "Home")#trains">Trains</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Index", "Home")#classes">Travel Classes</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Index", "Home")#about">About Us</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Index", "Home")#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-4">
+                    <h6>Reservation</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="@Url.Action("Create", "Reservation")">Book a Ticket</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Index", "Query")">PNR Status</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Index", "Cancellation")">Cancel Ticket</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Login", "Account")">Staff Login</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-secondary my-4" />
+            <div class="text-center small">&copy; @DateTime.Now.Year RailEase. Developed by Salahuddeen. All rights reserved.</div>
+        </div>
+    </footer>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navbar becomes solid after scrolling
+        (function () {
+            var nav = document.getElementById('landingNav');
+            function onScroll() { nav.classList.toggle('scrolled', window.scrollY > 60); }
+            window.addEventListener('scroll', onScroll);
+            onScroll();
+
+            // Fade-in sections when they come into view
+            var items = document.querySelectorAll('.reveal');
+            if ('IntersectionObserver' in window) {
+                var io = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (e) {
+                        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+                    });
+                }, { threshold: 0.12 });
+                items.forEach(function (el) { io.observe(el); });
+            } else {
+                items.forEach(function (el) { el.classList.add('visible'); });
+            }
+        })();
+    </script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>
